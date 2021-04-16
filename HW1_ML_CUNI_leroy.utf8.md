@@ -1,0 +1,74 @@
+--- 
+title: "Homework 1" # if you indicate the tile, it'll create a new cover page
+# coverpage: true # will take the _assets/coverpage.pdf file as cover page
+author: "François Leroy"
+date: "2021-04-16"
+
+## This line is to use when you want several outputs (specified in output.yml)
+site: bookdown::bookdown_site
+
+## The default class 
+documentclass: report
+classoption: oneside # really important!!!!
+
+
+# Set font features
+fontsize: 12pt
+linestretch: 1.5
+
+# Geometry for the PDF: 
+# (seems to provoc a warning message linked to biblatex)
+geometry:
+  - left = 2cm
+  - right = 2cm
+  - top = 2cm
+  - bottom = 2cm
+
+# LOF and LOT for the PDF
+# lof: true
+# lot: yes
+
+## to colorize the biblio ref and the URLs
+colorlinks: true 
+
+
+# Biblio for the PDF: please note that the name of the .bib file must be as simple as possible (e.g. no underscore)
+# bibliography:
+#  - references.bib
+# biblio-style: apa
+# biblio-title:  ## note: the name and label of the bib part is in the template!!!
+
+link-citations: yes
+github-repo: FrsLry/HW1_ML_CUNI_leroy
+# description: Methodology of François Leroy PhD student at the Czech University of life sciences in Prague
+# cover-image: figures/pp.jpg # cover and description are used when you share the book
+---
+
+
+
+# Annotation {-}
+
+
+Biodiversity, at the basis of many essentials ecosystem services, is in the process of facing its sixth mass extinction. Although global extinction is unprecedented, there is so far no reason to expect that biodiversity dynamic at lower spatial and temporal scales follow this trend. Thus, links between
+spatio-temporal scales and facets of biodiversity (*i.e.* species richness, species diversity, colonization, extinction, 
+species turnover, etc) need to be fully understood if we want to address this worldwide crisis. So far,
+attempts to describe biodiversity changes have been limited mainly by heterogeneity in spatial and
+temporal scales that was hardly taken into account by the statistical modelling frameworks.
+
+My PhD project propose to address this flaws in order to understand in more details biodiversity
+changes across spatial and temporal scales. Especially, we aim at developing and testing nonparametric
+tree-based modelling methods allowing to study the non-linear and interacting effects of
+space and time-span on different aspects of biodiversity.
+
+\underline{The specific objectives of my PhD project are:}
+
+1. Modelling and mapping avian species richness changes over Czech Republic across space and time
+scales.
+2. Decompose the modelled biodiversity to colonization, extinction, species turnover, across spatiotemporal
+scales.
+3. Estimate the strength of the link between environmental drivers of biodiversity change across
+spatio-temporal scales.
+4. Apply the previously developed method to other European regions (e.g. UK, Switzerland, France)
+
+<!--chapter:end:index.Rmd-->
+
