@@ -6,7 +6,7 @@
 *.rds
 phd.log
 debug.log
-data/
+#data/
 
 # Except...
 !rf_*.RDS
