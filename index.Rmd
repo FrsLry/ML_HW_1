@@ -1,7 +1,10 @@
 --- 
-title: "Homework 1" # if you indicate the tile, it'll create a new cover page
+title: | # if you indicate the tile, it'll create a new cover page
+  | Introduction to Machine Learning
+  | (NPFL054)
 # coverpage: true # will take the _assets/coverpage.pdf file as cover page
-author: "François Leroy"
+subtitle: "Homework 1"
+author: "François Leroy, PhD student at CZU"
 date: "`r Sys.Date()`"
 
 ## This line is to use when you want several outputs (specified in output.yml)
@@ -40,8 +43,6 @@ colorlinks: true
 
 link-citations: yes
 github-repo: FrsLry/HW1_ML_CUNI_leroy
-# description: Methodology of François Leroy PhD student at the Czech University of life sciences in Prague
-# cover-image: figures/pp.jpg # cover and description are used when you share the book
 ---
 
 ```{r, echo = F}
@@ -49,26 +50,69 @@ knitr::opts_chunk$set(warning = F,
                       message = F)
 ```
 
-# Annotation {#q1}
+# Multiple linear regression {#q1}
 
 
-Biodiversity, at the basis of many essentials ecosystem services, is in the process of facing its sixth mass extinction. Although global extinction is unprecedented, there is so far no reason to expect that biodiversity dynamic at lower spatial and temporal scales follow this trend. Thus, links between
-spatio-temporal scales and facets of biodiversity (*i.e.* species richness, species diversity, colonization, extinction, 
-species turnover, etc) need to be fully understood if we want to address this worldwide crisis. So far,
-attempts to describe biodiversity changes have been limited mainly by heterogeneity in spatial and
-temporal scales that was hardly taken into account by the statistical modelling frameworks.
+## 
 
-My PhD project propose to address this flaws in order to understand in more details biodiversity
-changes across spatial and temporal scales. Especially, we aim at developing and testing nonparametric
-tree-based modelling methods allowing to study the non-linear and interacting effects of
-space and time-span on different aspects of biodiversity.
+```{r}
+library(ISLR)
+library(tidyverse)
+```
 
-\underline{The specific objectives of my PhD project are:}
+```{r}
+# Perform the multiple linear regression
+lm <- 
+  lm(mpg ~ ., data = subset(Auto, select = -name))
+# Print the output
+summary(lm)
+```
 
-1. Modelling and mapping avian species richness changes over Czech Republic across space and time
-scales.
-2. Decompose the modelled biodiversity to colonization, extinction, species turnover, across spatiotemporal
-scales.
-3. Estimate the strength of the link between environmental drivers of biodiversity change across
-spatio-temporal scales.
-4. Apply the previously developed method to other European regions (e.g. UK, Switzerland, France)
+First of all, the adjusted $R^2 = 0.82$, which means that 82% of the variance of the data is explained by this models. This is a very trustful model. 
+
+
+Here, I will talk about only about the covariates that have a significant influence (*i.e.* $p-value \leq 0.05$) on the `mpg` variable (*i.e.* rows with an asterix such as `displacement`, `weight`, `year` and `origin`):
+
+* The miles per galon unit (*i.e.* `mpg`) expresses the fuel economy of a vehicle. Thus, when the coefficient of the `lm` is negative, it means that the vehicle will tend to go less further with a unit of fuel. Here, this is the case for the `weight` variable: a heavier vehicle will consume more fuel than a lighter one. 
+
+* The other significant relationships with the `displacement`, `year` and `origin` are positive which means that a more recent car, with a higher displacement volume and with a higher origin will tend to consume less fuel. 
+
+\newpage
+
+## 
+
+```{r}
+## Perform the 5 polynomial simpple linear regression
+for (i in 1:5){
+  assign(paste0("fit", i),
+         lm(mpg ~ poly(acceleration, i), data = subset(Auto, select = -name)))
+}
+## Plot them on a single plot
+#### First merge the predicted values of mpg with the acceleration
+Auto %>% 
+  select(acceleration) %>% 
+  cbind(poly1 = fit1$fitted.values,
+        poly2 = fit2$fitted.values,
+        poly3 = fit3$fitted.values,
+        poly4 = fit4$fitted.values,
+        poly5 = fit5$fitted.values) %>%
+##### Then format the data for ggplot  
+  pivot_longer(cols = poly1:poly5,
+               names_to = "poly",
+               values_to = "mpg") %>% 
+  mutate(rsq = case_when(
+    poly == "poly1" ~ round(summary(fit1)$adj.r.squared, digits = 2),
+    poly == "poly2" ~ round(summary(fit2)$adj.r.squared, digits = 2),
+    poly == "poly3" ~ round(summary(fit3)$adj.r.squared, digits = 2),
+    poly == "poly4" ~ round(summary(fit4)$adj.r.squared, digits = 2),
+    poly == "poly5" ~ round(summary(fit5)$adj.r.squared, digits = 2)
+  )) %>% 
+  unite(poly, c("poly", "rsq"), sep = ", adj.R² = ") %>% 
+#### Now plot it
+  ggplot()+
+  geom_point(aes(acceleration, mpg), data = subset(Auto, select = -name))+
+  geom_line(aes(acceleration, mpg, color = poly), size = 1.2)+
+  theme_classic()
+```
+
+
