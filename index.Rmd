@@ -59,7 +59,7 @@ knitr::opts_chunk$set(warning = F,
 except name. Print the results. Provide an interpretation of each hypothesis parameter in
 the model.**
 
-```{r}
+```{r, echo=F}
 rm(list = ls())
 library(ISLR)
 library(tidyverse)
@@ -76,9 +76,9 @@ summary(lm)
 First of all, the adjusted $R^2 = 0.82$, which means that 82% of the variance of the data is explained by this models. This is a very trustful model. 
 
 
-Here, I will talk about only about the covariates that have a significant influence (*i.e.* $p-value \leq 0.05$) on the `mpg` variable (*i.e.* rows with an asterix such as `displacement`, `weight`, `year` and `origin`):
+Hereafter, I will talk only about the covariates that have a significant influence (*i.e.* $p-value \leq 0.05$) on the `mpg` variable (*i.e.* rows with an asterix such as `displacement`, `weight`, `year` and `origin`):
 
-* The miles per galon unit (*i.e.* `mpg`) expresses the fuel economy of a vehicle. Thus, when the coefficient of the `lm` is negative, it means that the vehicle will tend to go less further with a unit of fuel. Here, this is the case for the `weight` variable: a heavier vehicle will consume more fuel than a lighter one. 
+* The miles per galon unit (*i.e.* `mpg`) expresses the fuel economy of a vehicle. Thus, when the coefficient of the `lm` is negative, it means that the vehicle will tend to go less far with a unit of fuel. Here, this is the case for the `weight` variable which means that a heavier vehicle will consume more fuel than a lighter one for the same distance travelled. 
 
 * The other significant relationships with the `displacement`, `year` and `origin` are positive which means that a more recent car, with a higher displacement volume and with a higher origin will tend to consume less fuel. 
 
@@ -90,7 +90,7 @@ Here, I will talk about only about the covariates that have a significant influe
 for the polynomial degrees 1 to 5 and report the values of Adjusted R2.**
 
 ```{r}
-## Perform the 5 polynomial simpple linear regression
+## Perform the 5 polynomial linear regression
 for (i in 1:5){
   assign(paste0("fit", i),
          lm(mpg ~ poly(acceleration, i), data = subset(Auto, select = -name)))
@@ -130,7 +130,7 @@ Auto %>%
 ##
 
 **Create a binary attribute, mpg01, that contains a 1 if mpg contains a value above its median,
-and a 0 if mpg contains a value below its median. Create a single data set d containing both mpg01 and the other Auto attributes except mpg. Compute entropy of mpg01.**
+and a 0 if mpg contains a value below its median. Create a single data set containing both mpg01 and the other Auto attributes except mpg. Compute entropy of mpg01.**
 
 ```{r}
 # Discretizing mpg
@@ -148,7 +148,7 @@ Here, the entropy of $mpg01 =$ `r ent_mpg` which is totally expected because `mp
 
 ##
 
-**Split the data d into a training set train and a test set test 80:20**
+**Split the data into a training set and a test set 80:20**
 
 ```{r}
 set.seed(123) # to reproduce the results
@@ -191,10 +191,8 @@ Here, the accuracy = `r accuracy`, which means that only $46\%$ of the target va
 
 ```{r}
 ## Learn the model
-logit_reg <- 
-glm(mpg01 ~ ., 
-    family = binomial(link = "logit"),
-    data = subset(train, select = -name))
+logit_reg <- glm(mpg01 ~ ., family = binomial(link = "logit"),
+                 data = subset(train, select = -name))
 ## Use the model to predict on the learning dataset
 train_prediction <- predict(logit_reg, type = "response")
 ## Transform the prediction into 0/1
@@ -267,8 +265,12 @@ for(i in 1:length(thresholds)){
 
 
 
-We can see the that recall (*i.e.* precision) is decreasing with the increasing threshold. It means that with a low threshold and high values of recall, most of the mpg = 1 will be correctly classified into class 1. For instance, for threshold = 0.1, recall = 1, which means that all the actual mpg = 1 are classified as one. 
-On the other hand, we can see that the the precision has the opposite behavior: it increases with the increasing threshold. A higher precision means that the predicted class = 1 will contain mostly actual values of mpg = 1 and will contain less misclassification. 
+We can see the that recall (*i.e.* precision) is decreasing with the increasing threshold. It means that with a low threshold and a high recall, most of the mpg = 1 will be correctly classified into class 1. For instance, for threshold = 0.1, recall = 1, which means that all the actual mpg = 1 are classified as 1.
+
+
+On the other hand, we can see that the the precision has the opposite behavior to the recall: the precision increases with the increasing threshold. A higher precision means that the predicted class = 1 will contain mostly actual values of mpg = 1 and will contain less misclassifications. 
+
+
 We can see that the F-score, which takes into account both precision and recall, is the highest for threshold = 0.5. Thus, it seems that we should prefer this threshold of 0.5 over the others because it optimizes the recall and precision metrics. 
 
 \newpage
@@ -278,3 +280,62 @@ We can see that the F-score, which takes into account both precision and recall,
 **Perform decision tree algorithm on train to predict mpg01 using all the features except name.**
 
 ### Create a plot of the tree. Compute the training error rate. Compute the test error rate.
+
+```{r, echo=F}
+library(rpart)
+library(rpart.plot)
+```
+
+
+```{r}
+## Learn the decision tree
+dt <- rpart(as.factor(mpg01) ~ ., data = subset(train, select = -name))
+## Plot it
+rpart.plot(dt)
+## Training data
+predtrain <- predict(dt, type = "class")
+cmtrain <- table(train$mpg01, predtrain)
+trainerrorrate <- 1 - (sum(diag(cmtrain))/sum(cmtrain))
+## Test data
+predtest <- predict(dt, type = "class", newdata = test)
+cmtest <- table(test$mpg01, predtest)
+testerrorrate <- 1 - (sum(diag(cmtest))/sum(cmtest))
+```
+
+The training error rate = `r trainerrorrate` and the test error rate = `r testerrorrate`. 
+
+### Tune the cp parameter. Choose the best value of cp, and evaluate your model again. What is the best value of cp? Why? Explain it explicitly. Compute the accuracy of the model with your best cp.
+
+```{r}
+tunedDT <- rpart(as.factor(mpg01) ~ ., data = subset(train, select = -name), 
+                 cp = 0.004)
+plotcp(tunedDT)
+```
+```{r, echo=F}
+kableExtra::kable(tunedDT$cptable)
+```
+
+The most optimal value of cp (*i.e.* complexity parameter) is the one minimizing the `xerror`, which is the generalization error (*i.e.* true error or expected error) that estimates the probability of error on an other potential dataset of distribution $D$.
+
+```{r, echo=F}
+## Compute accuracy on the test dataset
+dtpredict <- predict(tunedDT, type = "class", newdata = test)
+cmdt <- table(test$mpg01, dtpredict)
+accuracytunedDT <- sum(diag(cmdt))/sum(cmdt)
+```
+
+The accuracy of the new decision tree is `r accuracytunedDT`.
+
+\newpage
+
+##
+
+**Compare the best models trained in the previous exercises 4., 5., and 6. Which one could be considered as the best?**
+
+| Method  | Error rate   |
+|---|---|
+|Logistic Regression   | `r test_error_rate`  |
+|Decision Tree| `r 1-accuracytunedDT`|
+
+Using the test error rate as the final metric to choose the best modeling method, it seems that the decision tree has a slightly lower error rate and should be considered the best.
+

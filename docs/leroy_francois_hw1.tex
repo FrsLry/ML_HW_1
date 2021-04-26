@@ -168,6 +168,20 @@
 %{\thechapter{. }}
 \titlespacing*{\chapter}{0pt}{-50pt}{10pt}
 % -50 is to up the title and 10 is the space with the text below
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+\usepackage{xcolor}
 \ifluatex
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
@@ -227,14 +241,6 @@ the model.}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\KeywordTok{rm}\NormalTok{(}\DataTypeTok{list =} \KeywordTok{ls}\NormalTok{())}
-\KeywordTok{library}\NormalTok{(ISLR)}
-\KeywordTok{library}\NormalTok{(tidyverse)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{Shaded}
-\begin{Highlighting}[]
 \CommentTok{# Perform the multiple linear regression}
 \NormalTok{lm <-}\StringTok{ }
 \StringTok{  }\KeywordTok{lm}\NormalTok{(mpg }\OperatorTok{~}\StringTok{ }\NormalTok{., }\DataTypeTok{data =} \KeywordTok{subset}\NormalTok{(Auto, }\DataTypeTok{select =} \OperatorTok{-}\NormalTok{name))}
@@ -272,11 +278,11 @@ the model.}
 
 First of all, the adjusted \(R^2 = 0.82\), which means that 82\% of the variance of the data is explained by this models. This is a very trustful model.
 
-Here, I will talk about only about the covariates that have a significant influence (\emph{i.e.} \(p-value \leq 0.05\)) on the \texttt{mpg} variable (\emph{i.e.} rows with an asterix such as \texttt{displacement}, \texttt{weight}, \texttt{year} and \texttt{origin}):
+Hereafter, I will talk only about the covariates that have a significant influence (\emph{i.e.} \(p-value \leq 0.05\)) on the \texttt{mpg} variable (\emph{i.e.} rows with an asterix such as \texttt{displacement}, \texttt{weight}, \texttt{year} and \texttt{origin}):
 
 \begin{itemize}
 \item
-  The miles per galon unit (\emph{i.e.} \texttt{mpg}) expresses the fuel economy of a vehicle. Thus, when the coefficient of the \texttt{lm} is negative, it means that the vehicle will tend to go less further with a unit of fuel. Here, this is the case for the \texttt{weight} variable: a heavier vehicle will consume more fuel than a lighter one.
+  The miles per galon unit (\emph{i.e.} \texttt{mpg}) expresses the fuel economy of a vehicle. Thus, when the coefficient of the \texttt{lm} is negative, it means that the vehicle will tend to go less far with a unit of fuel. Here, this is the case for the \texttt{weight} variable which means that a heavier vehicle will consume more fuel than a lighter one for the same distance travelled.
 \item
   The other significant relationships with the \texttt{displacement}, \texttt{year} and \texttt{origin} are positive which means that a more recent car, with a higher displacement volume and with a higher origin will tend to consume less fuel.
 \end{itemize}
@@ -291,7 +297,7 @@ for the polynomial degrees 1 to 5 and report the values of Adjusted R2.}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{## Perform the 5 polynomial simpple linear regression}
+\CommentTok{## Perform the 5 polynomial linear regression}
 \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\DecValTok{5}\NormalTok{)\{}
   \KeywordTok{assign}\NormalTok{(}\KeywordTok{paste0}\NormalTok{(}\StringTok{"fit"}\NormalTok{, i),}
          \KeywordTok{lm}\NormalTok{(mpg }\OperatorTok{~}\StringTok{ }\KeywordTok{poly}\NormalTok{(acceleration, i), }\DataTypeTok{data =} \KeywordTok{subset}\NormalTok{(Auto, }\DataTypeTok{select =} \OperatorTok{-}\NormalTok{name)))}
@@ -325,7 +331,7 @@ for the polynomial degrees 1 to 5 and report the values of Adjusted R2.}
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{HW1_ML_CUNI_leroy_files/figure-latex/unnamed-chunk-4-1.pdf}
+\includegraphics{leroy_francois_hw1_files/figure-latex/unnamed-chunk-4-1.pdf}
 
 \newpage
 
@@ -336,7 +342,7 @@ for the polynomial degrees 1 to 5 and report the values of Adjusted R2.}
 \section{}\label{section-2}}
 
 \textbf{Create a binary attribute, mpg01, that contains a 1 if mpg contains a value above its median,
-and a 0 if mpg contains a value below its median. Create a single data set d containing both mpg01 and the other Auto attributes except mpg. Compute entropy of mpg01.}
+and a 0 if mpg contains a value below its median. Create a single data set containing both mpg01 and the other Auto attributes except mpg. Compute entropy of mpg01.}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -357,7 +363,7 @@ Here, the entropy of \(mpg01 =\) 1 which is totally expected because \texttt{mpg
 \hypertarget{section-3}{%
 \section{}\label{section-3}}
 
-\textbf{Split the data d into a training set train and a test set test 80:20}
+\textbf{Split the data into a training set and a test set 80:20}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -425,10 +431,8 @@ Here, the accuracy = 0.4615385, which means that only \(46\%\) of the target val
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{## Learn the model}
-\NormalTok{logit_reg <-}\StringTok{ }
-\KeywordTok{glm}\NormalTok{(mpg01 }\OperatorTok{~}\StringTok{ }\NormalTok{., }
-    \DataTypeTok{family =} \KeywordTok{binomial}\NormalTok{(}\DataTypeTok{link =} \StringTok{"logit"}\NormalTok{),}
-    \DataTypeTok{data =} \KeywordTok{subset}\NormalTok{(train, }\DataTypeTok{select =} \OperatorTok{-}\NormalTok{name))}
+\NormalTok{logit_reg <-}\StringTok{ }\KeywordTok{glm}\NormalTok{(mpg01 }\OperatorTok{~}\StringTok{ }\NormalTok{., }\DataTypeTok{family =} \KeywordTok{binomial}\NormalTok{(}\DataTypeTok{link =} \StringTok{"logit"}\NormalTok{),}
+                 \DataTypeTok{data =} \KeywordTok{subset}\NormalTok{(train, }\DataTypeTok{select =} \OperatorTok{-}\NormalTok{name))}
 \CommentTok{## Use the model to predict on the learning dataset}
 \NormalTok{train_prediction <-}\StringTok{ }\KeywordTok{predict}\NormalTok{(logit_reg, }\DataTypeTok{type =} \StringTok{"response"}\NormalTok{)}
 \CommentTok{## Transform the prediction into 0/1}
@@ -519,8 +523,10 @@ On the other hand, the \textbf{specificity} equal to 0.8571429 means that only 8
   For threshold = 0.9 , Precision = 0.961538461538462 , Recall = 0.694444444444444 and F-measure = 0.806451612903226
 \end{itemize}
 
-We can see the that recall (\emph{i.e.} precision) is decreasing with the increasing threshold. It means that with a low threshold and high values of recall, most of the mpg = 1 will be correctly classified into class 1. For instance, for threshold = 0.1, recall = 1, which means that all the actual mpg = 1 are classified as one.
-On the other hand, we can see that the the precision has the opposite behavior: it increases with the increasing threshold. A higher precision means that the predicted class = 1 will contain mostly actual values of mpg = 1 and will contain less misclassification.
+We can see the that recall (\emph{i.e.} precision) is decreasing with the increasing threshold. It means that with a low threshold and a high recall, most of the mpg = 1 will be correctly classified into class 1. For instance, for threshold = 0.1, recall = 1, which means that all the actual mpg = 1 are classified as 1.
+
+On the other hand, we can see that the the precision has the opposite behavior to the recall: the precision increases with the increasing threshold. A higher precision means that the predicted class = 1 will contain mostly actual values of mpg = 1 and will contain less misclassifications.
+
 We can see that the F-score, which takes into account both precision and recall, is the highest for threshold = 0.5. Thus, it seems that we should prefer this threshold of 0.5 over the others because it optimizes the recall and precision metrics.
 
 \newpage
@@ -532,6 +538,82 @@ We can see that the F-score, which takes into account both precision and recall,
 
 \hypertarget{create-a-plot-of-the-tree.-compute-the-training-error-rate.-compute-the-test-error-rate.}{%
 \subsection{Create a plot of the tree. Compute the training error rate. Compute the test error rate.}\label{create-a-plot-of-the-tree.-compute-the-training-error-rate.-compute-the-test-error-rate.}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{## Learn the decision tree}
+\NormalTok{dt <-}\StringTok{ }\KeywordTok{rpart}\NormalTok{(}\KeywordTok{as.factor}\NormalTok{(mpg01) }\OperatorTok{~}\StringTok{ }\NormalTok{., }\DataTypeTok{data =} \KeywordTok{subset}\NormalTok{(train, }\DataTypeTok{select =} \OperatorTok{-}\NormalTok{name))}
+\CommentTok{## Plot it}
+\KeywordTok{rpart.plot}\NormalTok{(dt)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{leroy_francois_hw1_files/figure-latex/unnamed-chunk-14-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{## Training data}
+\NormalTok{predtrain <-}\StringTok{ }\KeywordTok{predict}\NormalTok{(dt, }\DataTypeTok{type =} \StringTok{"class"}\NormalTok{)}
+\NormalTok{cmtrain <-}\StringTok{ }\KeywordTok{table}\NormalTok{(train}\OperatorTok{$}\NormalTok{mpg01, predtrain)}
+\NormalTok{trainerrorrate <-}\StringTok{ }\DecValTok{1} \OperatorTok{-}\StringTok{ }\NormalTok{(}\KeywordTok{sum}\NormalTok{(}\KeywordTok{diag}\NormalTok{(cmtrain))}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(cmtrain))}
+\CommentTok{## Test data}
+\NormalTok{predtest <-}\StringTok{ }\KeywordTok{predict}\NormalTok{(dt, }\DataTypeTok{type =} \StringTok{"class"}\NormalTok{, }\DataTypeTok{newdata =}\NormalTok{ test)}
+\NormalTok{cmtest <-}\StringTok{ }\KeywordTok{table}\NormalTok{(test}\OperatorTok{$}\NormalTok{mpg01, predtest)}
+\NormalTok{testerrorrate <-}\StringTok{ }\DecValTok{1} \OperatorTok{-}\StringTok{ }\NormalTok{(}\KeywordTok{sum}\NormalTok{(}\KeywordTok{diag}\NormalTok{(cmtest))}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(cmtest))}
+\end{Highlighting}
+\end{Shaded}
+
+The training error rate = 0.0447284 and the test error rate = 0.1025641.
+
+\hypertarget{tune-the-cp-parameter.-choose-the-best-value-of-cp-and-evaluate-your-model-again.-what-is-the-best-value-of-cp-why-explain-it-explicitly.-compute-the-accuracy-of-the-model-with-your-best-cp.}{%
+\subsection{Tune the cp parameter. Choose the best value of cp, and evaluate your model again. What is the best value of cp? Why? Explain it explicitly. Compute the accuracy of the model with your best cp.}\label{tune-the-cp-parameter.-choose-the-best-value-of-cp-and-evaluate-your-model-again.-what-is-the-best-value-of-cp-why-explain-it-explicitly.-compute-the-accuracy-of-the-model-with-your-best-cp.}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{tunedDT <-}\StringTok{ }\KeywordTok{rpart}\NormalTok{(}\KeywordTok{as.factor}\NormalTok{(mpg01) }\OperatorTok{~}\StringTok{ }\NormalTok{., }\DataTypeTok{data =} \KeywordTok{subset}\NormalTok{(train, }\DataTypeTok{select =} \OperatorTok{-}\NormalTok{name), }
+                 \DataTypeTok{cp =} \FloatTok{0.004}\NormalTok{)}
+\KeywordTok{plotcp}\NormalTok{(tunedDT)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{leroy_francois_hw1_files/figure-latex/unnamed-chunk-15-1.pdf}
+
+\begin{tabular}{r|r|r|r|r}
+\hline
+CP & nsplit & rel error & xerror & xstd\\
+\hline
+0.8051948 & 0 & 1.0000000 & 1.0000000 & 0.0574336\\
+\hline
+0.0357143 & 1 & 0.1948052 & 0.2402597 & 0.0370905\\
+\hline
+0.0162338 & 3 & 0.1233766 & 0.2272727 & 0.0362046\\
+\hline
+0.0040000 & 5 & 0.0909091 & 0.1493506 & 0.0299757\\
+\hline
+\end{tabular}
+
+The most optimal value of cp (\emph{i.e.} complexity parameter) is the one minimizing the \texttt{xerror}, which is the generalization error (\emph{i.e.} true error or expected error) that estimates the probability of error on an other potential dataset of distribution \(D\).
+
+The accuracy of the new decision tree is 0.8974359.
+
+\newpage
+
+\hypertarget{section-8}{%
+\section{}\label{section-8}}
+
+\textbf{Compare the best models trained in the previous exercises 4., 5., and 6. Which one could be considered as the best?}
+
+\begin{longtable}[]{@{}ll@{}}
+\toprule
+Method & Error rate\tabularnewline
+\midrule
+\endhead
+Logistic Regression & 0.1153846\tabularnewline
+Decision Tree & 0.1025641\tabularnewline
+\bottomrule
+\end{longtable}
+
+Using the test error rate as the final metric to choose the best modeling method, it seems that the decision tree has a slightly lower error rate and should be considered the best.
 
 
 \singlespacing % reset the spacing of the bibliography style

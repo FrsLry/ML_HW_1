@@ -1,3 +1,4 @@
-# Methodology
 
-You can find and download the pdf [here](https://github.com/FrsLry/phd_methodology/blob/main/docs/phd.pdf) and the docx [here](https://github.com/FrsLry/phd_methodology/blob/main/phd.docx)
+This project contains the Rscript, called "index.Rmd" which is a markdown file containing both the text and the code of the homework. 
+
+The final pdf can be found in ./docs and is called "leroy_francois_hw1.pdf".
