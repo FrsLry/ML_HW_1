@@ -7,9 +7,6 @@ subtitle: "Homework 1"
 author: "François Leroy, PhD student at CZU"
 date: "`r Sys.Date()`"
 
-## This line is to use when you want several outputs (specified in output.yml)
-site: bookdown::bookdown_site
-
 ## The default class 
 documentclass: report
 classoption: oneside # really important!!!!
@@ -27,19 +24,9 @@ geometry:
   - top = 2cm
   - bottom = 2cm
 
-# LOF and LOT for the PDF
-# lof: true
-# lot: yes
 
 ## to colorize the biblio ref and the URLs
 colorlinks: true 
-
-
-# Biblio for the PDF: please note that the name of the .bib file must be as simple as possible (e.g. no underscore)
-# bibliography:
-#  - references.bib
-# biblio-style: apa
-# biblio-title:  ## note: the name and label of the bib part is in the template!!!
 
 link-citations: yes
 github-repo: FrsLry/HW1_ML_CUNI_leroy
