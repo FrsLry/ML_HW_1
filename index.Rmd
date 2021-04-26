@@ -55,7 +55,12 @@ knitr::opts_chunk$set(warning = F,
 
 ## 
 
+**Consider mpg as the target value. Perform a multiple linear regression using all the attributes
+except name. Print the results. Provide an interpretation of each hypothesis parameter in
+the model.**
+
 ```{r}
+rm(list = ls())
 library(ISLR)
 library(tidyverse)
 ```
@@ -80,6 +85,9 @@ Here, I will talk about only about the covariates that have a significant influe
 \newpage
 
 ## 
+
+**Perform polynomial regression to predict mpg using acceleration. Plot the polynomial fits
+for the polynomial degrees 1 to 5 and report the values of Adjusted R2.**
 
 ```{r}
 ## Perform the 5 polynomial simpple linear regression
@@ -115,4 +123,158 @@ Auto %>%
   theme_classic()
 ```
 
+\newpage 
 
+# Develop a model to predict whether a given car gets high or low gas mileage {#q2}
+
+##
+
+**Create a binary attribute, mpg01, that contains a 1 if mpg contains a value above its median,
+and a 0 if mpg contains a value below its median. Create a single data set d containing both mpg01 and the other Auto attributes except mpg. Compute entropy of mpg01.**
+
+```{r}
+# Discretizing mpg
+Auto$mpg01 <- ifelse(Auto$mpg > median(Auto$mpg), 1, 0)
+# Creating dataset with discrete mpg
+classif_data <-subset(Auto, select = -mpg)
+## Compute entropy
+# First compute the proba of each class
+p <- table(classif_data$mpg01) / length(classif_data$mpg01)
+## Then compute the entropy
+ent_mpg <- -sum(p * log2(p))
+```
+
+Here, the entropy of $mpg01 =$ `r ent_mpg` which is totally expected because `mpg` has been discretized by its median, which means that $50\%$ of `mpg` values are above (and thus equal to 1) and $50\%$ are below (and thus equal to 0). Consequently, the probability of `mpg01` being 0 or 1 are both equal to `0.5` and the entropy is maximum. 
+
+##
+
+**Split the data d into a training set train and a test set test 80:20**
+
+```{r}
+set.seed(123) # to reproduce the results
+## Training dataset
+train <- classif_data[sample(nrow(classif_data), nrow(classif_data)*0.8),]
+## Test dataset
+test <- classif_data[sample(nrow(classif_data), nrow(classif_data)*0.2),]
+```
+
+## 
+
+**Make a trivial classifier (without using the features) and evaluate it on the test set. Compute its accuracy.**
+
+```{r}
+# Most frequent class of the training data
+table(train$mpg01)
+```
+
+The most frequent class of the training dataset is $1$. Thus, the trivial classifier will always predict $1$. 
+
+```{r}
+## Confusion matrix of the trivial classifier
+table(test$mpg01, rep(1, nrow(test)))
+```
+
+```{r}
+## Compute accuracy
+accuracy <- 36/nrow(test)
+```
+
+Here, the accuracy = `r accuracy`, which means that only $46\%$ of the target values will be classified correctly. 
+
+\newpage
+
+##
+
+**Perform logistic regression on train in order to predict mpg01 using all the features except name. Use a threshold of 0.5 to cut the predicted probabilities to make class predictions.**
+
+### Compute the training error rate.
+
+```{r}
+## Learn the model
+logit_reg <- 
+glm(mpg01 ~ ., 
+    family = binomial(link = "logit"),
+    data = subset(train, select = -name))
+## Use the model to predict on the learning dataset
+train_prediction <- predict(logit_reg, type = "response")
+## Transform the prediction into 0/1
+train_prediction <- ifelse(train_prediction > .5, 1, 0)
+## Confusion matrix
+cm_train_logit <- table(train$mpg01, train_prediction)
+## Training error rate
+train_error_rate <- 1 - sum(diag(cm_train_logit))/sum(cm_train_logit)
+```
+
+The training error rate of this logistic regression is `r train_error_rate`.
+
+\newpage
+
+### Produce a confusion matrix comparing the true test target values to the predicted test target values. Compute the test error rate, Sensitivity, and Specificity.
+
+```{r}
+## Use the model to predict on the test dataset
+test_prediction <- predict(logit_reg, type = "response", newdata = test)
+## Transform the prediction into 0/1
+test_prediction <- ifelse(test_prediction > .5, 1, 0)
+## Confusion matrix
+cm_test_logit <- table(test$mpg01, test_prediction)
+## Test error rate:
+test_error_rate <- 1 - sum(diag(cm_test_logit))/sum(cm_test_logit)
+## Sensitivity
+sensi <- cm_test_logit[2,2]/(cm_test_logit[2,2] + cm_test_logit[2,1])
+## Specificity
+speci <- cm_test_logit[1,1]/(cm_test_logit[1,1]+cm_test_logit[1,2])
+```
+
+The training error rate, sensitivity and specificity are respectively equal to `r test_error_rate`, `r sensi` and `r speci`.
+
+### Provide an interpretation of each hypothesis parameter in the model.
+
+The **test error rate** of `r test_error_rate` means that around `r paste0(round(test_error_rate*100), "%")` of the predictions in both class are incorrect, *i,e.* $mpg = 1$ classified as $0$ or $mpg = 0$ classified as $1$.
+
+The **sensitivity** equal to `r sensi` means that only `r paste0(round(sensi*100), "%")` of the example actually equal to 1 will correctly be classified as 1. 
+
+On the other hand, the **specificity** equal to `r speci` means that only `r paste0(round(speci*100), "%")` of the examples equal to 0 will be corretly classified in the class 0. 
+
+
+##
+
+**In the previous exercise you used a threshold of 0.5. Re-run the experiment from the previous exercise with different threshold values, namely 0.1, 0.3, 0.6, 0.9.**
+
+
+```{r, results="asis"}
+thresholds <- c(0.1, 0.3, 0.5, 0.6, 0.9)
+for(i in 1:length(thresholds)){
+  ## Use the model to predict on the test dataset
+  test_prediction <- predict(logit_reg, type = "response", newdata = test)
+  ## Transform the prediction into 0/1
+  test_prediction <- ifelse(test_prediction > thresholds[i], 1, 0)
+  ## Confusion matrix
+  cm_test_logit <- table(test$mpg01, test_prediction)
+  ## Precision
+  prec <- cm_test_logit[2,2]/(cm_test_logit[2,2] + cm_test_logit[1,2])
+  ## Recall
+  recall <- cm_test_logit[2,2]/(cm_test_logit[2,2] + cm_test_logit[2,1])
+  ## F-measure
+  fmeasure <- 2*(prec*recall)/(prec+recall)
+  #Print
+  cat(paste0("-"," For threshold = ", thresholds[i],
+               " , Precision = ", prec,
+               " , Recall = ", recall,
+               " and F-measure = ", fmeasure), sep = "\n")
+}
+```
+
+
+
+We can see the that recall (*i.e.* precision) is decreasing with the increasing threshold. It means that with a low threshold and high values of recall, most of the mpg = 1 will be correctly classified into class 1. For instance, for threshold = 0.1, recall = 1, which means that all the actual mpg = 1 are classified as one. 
+On the other hand, we can see that the the precision has the opposite behavior: it increases with the increasing threshold. A higher precision means that the predicted class = 1 will contain mostly actual values of mpg = 1 and will contain less misclassification. 
+We can see that the F-score, which takes into account both precision and recall, is the highest for threshold = 0.5. Thus, it seems that we should prefer this threshold of 0.5 over the others because it optimizes the recall and precision metrics. 
+
+\newpage
+
+##
+
+**Perform decision tree algorithm on train to predict mpg01 using all the features except name.**
+
+### Create a plot of the tree. Compute the training error rate. Compute the test error rate.

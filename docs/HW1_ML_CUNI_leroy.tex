@@ -182,7 +182,7 @@
 \makeatother
 \subtitle{Homework 1}
 \author{François Leroy, PhD student at CZU}
-\date{2021-04-17}
+\date{2021-04-26}
 
 % to include pdf
 \usepackage{pdfpages}
@@ -221,8 +221,13 @@
 \hypertarget{section}{%
 \section{}\label{section}}
 
+\textbf{Consider mpg as the target value. Perform a multiple linear regression using all the attributes
+except name. Print the results. Provide an interpretation of each hypothesis parameter in
+the model.}
+
 \begin{Shaded}
 \begin{Highlighting}[]
+\KeywordTok{rm}\NormalTok{(}\DataTypeTok{list =} \KeywordTok{ls}\NormalTok{())}
 \KeywordTok{library}\NormalTok{(ISLR)}
 \KeywordTok{library}\NormalTok{(tidyverse)}
 \end{Highlighting}
@@ -281,6 +286,9 @@ Here, I will talk about only about the covariates that have a significant influe
 \hypertarget{section-1}{%
 \section{}\label{section-1}}
 
+\textbf{Perform polynomial regression to predict mpg using acceleration. Plot the polynomial fits
+for the polynomial degrees 1 to 5 and report the values of Adjusted R2.}
+
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{## Perform the 5 polynomial simpple linear regression}
@@ -318,6 +326,212 @@ Here, I will talk about only about the covariates that have a significant influe
 \end{Shaded}
 
 \includegraphics{HW1_ML_CUNI_leroy_files/figure-latex/unnamed-chunk-4-1.pdf}
+
+\newpage
+
+\hypertarget{q2}{%
+\chapter{Develop a model to predict whether a given car gets high or low gas mileage}\label{q2}}
+
+\hypertarget{section-2}{%
+\section{}\label{section-2}}
+
+\textbf{Create a binary attribute, mpg01, that contains a 1 if mpg contains a value above its median,
+and a 0 if mpg contains a value below its median. Create a single data set d containing both mpg01 and the other Auto attributes except mpg. Compute entropy of mpg01.}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Discretizing mpg}
+\NormalTok{Auto}\OperatorTok{$}\NormalTok{mpg01 <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(Auto}\OperatorTok{$}\NormalTok{mpg }\OperatorTok{>}\StringTok{ }\KeywordTok{median}\NormalTok{(Auto}\OperatorTok{$}\NormalTok{mpg), }\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{)}
+\CommentTok{# Creating dataset with discrete mpg}
+\NormalTok{classif_data <-}\KeywordTok{subset}\NormalTok{(Auto, }\DataTypeTok{select =} \OperatorTok{-}\NormalTok{mpg)}
+\CommentTok{## Compute entropy}
+\CommentTok{# First compute the proba of each class}
+\NormalTok{p <-}\StringTok{ }\KeywordTok{table}\NormalTok{(classif_data}\OperatorTok{$}\NormalTok{mpg01) }\OperatorTok{/}\StringTok{ }\KeywordTok{length}\NormalTok{(classif_data}\OperatorTok{$}\NormalTok{mpg01)}
+\CommentTok{## Then compute the entropy}
+\NormalTok{ent_mpg <-}\StringTok{ }\OperatorTok{-}\KeywordTok{sum}\NormalTok{(p }\OperatorTok{*}\StringTok{ }\KeywordTok{log2}\NormalTok{(p))}
+\end{Highlighting}
+\end{Shaded}
+
+Here, the entropy of \(mpg01 =\) 1 which is totally expected because \texttt{mpg} has been discretized by its median, which means that \(50\%\) of \texttt{mpg} values are above (and thus equal to 1) and \(50\%\) are below (and thus equal to 0). Consequently, the probability of \texttt{mpg01} being 0 or 1 are both equal to \texttt{0.5} and the entropy is maximum.
+
+\hypertarget{section-3}{%
+\section{}\label{section-3}}
+
+\textbf{Split the data d into a training set train and a test set test 80:20}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{set.seed}\NormalTok{(}\DecValTok{123}\NormalTok{) }\CommentTok{# to reproduce the results}
+\CommentTok{## Training dataset}
+\NormalTok{train <-}\StringTok{ }\NormalTok{classif_data[}\KeywordTok{sample}\NormalTok{(}\KeywordTok{nrow}\NormalTok{(classif_data), }\KeywordTok{nrow}\NormalTok{(classif_data)}\OperatorTok{*}\FloatTok{0.8}\NormalTok{),]}
+\CommentTok{## Test dataset}
+\NormalTok{test <-}\StringTok{ }\NormalTok{classif_data[}\KeywordTok{sample}\NormalTok{(}\KeywordTok{nrow}\NormalTok{(classif_data), }\KeywordTok{nrow}\NormalTok{(classif_data)}\OperatorTok{*}\FloatTok{0.2}\NormalTok{),]}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{section-4}{%
+\section{}\label{section-4}}
+
+\textbf{Make a trivial classifier (without using the features) and evaluate it on the test set. Compute its accuracy.}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Most frequent class of the training data}
+\KeywordTok{table}\NormalTok{(train}\OperatorTok{$}\NormalTok{mpg01)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##   0   1 
+## 154 159
+\end{verbatim}
+
+The most frequent class of the training dataset is \(1\). Thus, the trivial classifier will always predict \(1\).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{## Confusion matrix of the trivial classifier}
+\KeywordTok{table}\NormalTok{(test}\OperatorTok{$}\NormalTok{mpg01, }\KeywordTok{rep}\NormalTok{(}\DecValTok{1}\NormalTok{, }\KeywordTok{nrow}\NormalTok{(test)))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##    
+##      1
+##   0 42
+##   1 36
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{## Compute accuracy}
+\NormalTok{accuracy <-}\StringTok{ }\DecValTok{36}\OperatorTok{/}\KeywordTok{nrow}\NormalTok{(test)}
+\end{Highlighting}
+\end{Shaded}
+
+Here, the accuracy = 0.4615385, which means that only \(46\%\) of the target values will be classified correctly.
+
+\newpage
+
+\hypertarget{section-5}{%
+\section{}\label{section-5}}
+
+\textbf{Perform logistic regression on train in order to predict mpg01 using all the features except name. Use a threshold of 0.5 to cut the predicted probabilities to make class predictions.}
+
+\hypertarget{compute-the-training-error-rate.}{%
+\subsection{Compute the training error rate.}\label{compute-the-training-error-rate.}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{## Learn the model}
+\NormalTok{logit_reg <-}\StringTok{ }
+\KeywordTok{glm}\NormalTok{(mpg01 }\OperatorTok{~}\StringTok{ }\NormalTok{., }
+    \DataTypeTok{family =} \KeywordTok{binomial}\NormalTok{(}\DataTypeTok{link =} \StringTok{"logit"}\NormalTok{),}
+    \DataTypeTok{data =} \KeywordTok{subset}\NormalTok{(train, }\DataTypeTok{select =} \OperatorTok{-}\NormalTok{name))}
+\CommentTok{## Use the model to predict on the learning dataset}
+\NormalTok{train_prediction <-}\StringTok{ }\KeywordTok{predict}\NormalTok{(logit_reg, }\DataTypeTok{type =} \StringTok{"response"}\NormalTok{)}
+\CommentTok{## Transform the prediction into 0/1}
+\NormalTok{train_prediction <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(train_prediction }\OperatorTok{>}\StringTok{ }\FloatTok{.5}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{)}
+\CommentTok{## Confusion matrix}
+\NormalTok{cm_train_logit <-}\StringTok{ }\KeywordTok{table}\NormalTok{(train}\OperatorTok{$}\NormalTok{mpg01, train_prediction)}
+\CommentTok{## Training error rate}
+\NormalTok{train_error_rate <-}\StringTok{ }\DecValTok{1} \OperatorTok{-}\StringTok{ }\KeywordTok{sum}\NormalTok{(}\KeywordTok{diag}\NormalTok{(cm_train_logit))}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(cm_train_logit)}
+\end{Highlighting}
+\end{Shaded}
+
+The training error rate of this logistic regression is 0.0830671.
+
+\newpage
+
+\hypertarget{produce-a-confusion-matrix-comparing-the-true-test-target-values-to-the-predicted-test-target-values.-compute-the-test-error-rate-sensitivity-and-specificity.}{%
+\subsection{Produce a confusion matrix comparing the true test target values to the predicted test target values. Compute the test error rate, Sensitivity, and Specificity.}\label{produce-a-confusion-matrix-comparing-the-true-test-target-values-to-the-predicted-test-target-values.-compute-the-test-error-rate-sensitivity-and-specificity.}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{## Use the model to predict on the test dataset}
+\NormalTok{test_prediction <-}\StringTok{ }\KeywordTok{predict}\NormalTok{(logit_reg, }\DataTypeTok{type =} \StringTok{"response"}\NormalTok{, }\DataTypeTok{newdata =}\NormalTok{ test)}
+\CommentTok{## Transform the prediction into 0/1}
+\NormalTok{test_prediction <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(test_prediction }\OperatorTok{>}\StringTok{ }\FloatTok{.5}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{)}
+\CommentTok{## Confusion matrix}
+\NormalTok{cm_test_logit <-}\StringTok{ }\KeywordTok{table}\NormalTok{(test}\OperatorTok{$}\NormalTok{mpg01, test_prediction)}
+\CommentTok{## Test error rate:}
+\NormalTok{test_error_rate <-}\StringTok{ }\DecValTok{1} \OperatorTok{-}\StringTok{ }\KeywordTok{sum}\NormalTok{(}\KeywordTok{diag}\NormalTok{(cm_test_logit))}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(cm_test_logit)}
+\CommentTok{## Sensitivity}
+\NormalTok{sensi <-}\StringTok{ }\NormalTok{cm_test_logit[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{]}\OperatorTok{/}\NormalTok{(cm_test_logit[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{] }\OperatorTok{+}\StringTok{ }\NormalTok{cm_test_logit[}\DecValTok{2}\NormalTok{,}\DecValTok{1}\NormalTok{])}
+\CommentTok{## Specificity}
+\NormalTok{speci <-}\StringTok{ }\NormalTok{cm_test_logit[}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{]}\OperatorTok{/}\NormalTok{(cm_test_logit[}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{]}\OperatorTok{+}\NormalTok{cm_test_logit[}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+The training error rate, sensitivity and specificity are respectively equal to 0.1153846, 0.9166667 and 0.8571429.
+
+\hypertarget{provide-an-interpretation-of-each-hypothesis-parameter-in-the-model.}{%
+\subsection{Provide an interpretation of each hypothesis parameter in the model.}\label{provide-an-interpretation-of-each-hypothesis-parameter-in-the-model.}}
+
+The \textbf{test error rate} of 0.1153846 means that around 12\% of the predictions in both class are incorrect, \emph{i,e.} \(mpg = 1\) classified as \(0\) or \(mpg = 0\) classified as \(1\).
+
+The \textbf{sensitivity} equal to 0.9166667 means that only 92\% of the example actually equal to 1 will correctly be classified as 1.
+
+On the other hand, the \textbf{specificity} equal to 0.8571429 means that only 86\% of the examples equal to 0 will be corretly classified in the class 0.
+
+\hypertarget{section-6}{%
+\section{}\label{section-6}}
+
+\textbf{In the previous exercise you used a threshold of 0.5. Re-run the experiment from the previous exercise with different threshold values, namely 0.1, 0.3, 0.6, 0.9.}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{thresholds <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\FloatTok{0.1}\NormalTok{, }\FloatTok{0.3}\NormalTok{, }\FloatTok{0.5}\NormalTok{, }\FloatTok{0.6}\NormalTok{, }\FloatTok{0.9}\NormalTok{)}
+\ControlFlowTok{for}\NormalTok{(i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\KeywordTok{length}\NormalTok{(thresholds))\{}
+  \CommentTok{## Use the model to predict on the test dataset}
+\NormalTok{  test_prediction <-}\StringTok{ }\KeywordTok{predict}\NormalTok{(logit_reg, }\DataTypeTok{type =} \StringTok{"response"}\NormalTok{, }\DataTypeTok{newdata =}\NormalTok{ test)}
+  \CommentTok{## Transform the prediction into 0/1}
+\NormalTok{  test_prediction <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(test_prediction }\OperatorTok{>}\StringTok{ }\NormalTok{thresholds[i], }\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{)}
+  \CommentTok{## Confusion matrix}
+\NormalTok{  cm_test_logit <-}\StringTok{ }\KeywordTok{table}\NormalTok{(test}\OperatorTok{$}\NormalTok{mpg01, test_prediction)}
+  \CommentTok{## Precision}
+\NormalTok{  prec <-}\StringTok{ }\NormalTok{cm_test_logit[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{]}\OperatorTok{/}\NormalTok{(cm_test_logit[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{] }\OperatorTok{+}\StringTok{ }\NormalTok{cm_test_logit[}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{])}
+  \CommentTok{## Recall}
+\NormalTok{  recall <-}\StringTok{ }\NormalTok{cm_test_logit[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{]}\OperatorTok{/}\NormalTok{(cm_test_logit[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{] }\OperatorTok{+}\StringTok{ }\NormalTok{cm_test_logit[}\DecValTok{2}\NormalTok{,}\DecValTok{1}\NormalTok{])}
+  \CommentTok{## F-measure}
+\NormalTok{  fmeasure <-}\StringTok{ }\DecValTok{2}\OperatorTok{*}\NormalTok{(prec}\OperatorTok{*}\NormalTok{recall)}\OperatorTok{/}\NormalTok{(prec}\OperatorTok{+}\NormalTok{recall)}
+  \CommentTok{#Print}
+  \KeywordTok{cat}\NormalTok{(}\KeywordTok{paste0}\NormalTok{(}\StringTok{"-"}\NormalTok{,}\StringTok{" For threshold = "}\NormalTok{, thresholds[i],}
+               \StringTok{" , Precision = "}\NormalTok{, prec,}
+               \StringTok{" , Recall = "}\NormalTok{, recall,}
+               \StringTok{" and F-measure = "}\NormalTok{, fmeasure), }\DataTypeTok{sep =} \StringTok{"}\CharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{itemize}
+\tightlist
+\item
+  For threshold = 0.1 , Precision = 0.765957446808511 , Recall = 1 and F-measure = 0.867469879518072
+\item
+  For threshold = 0.3 , Precision = 0.772727272727273 , Recall = 0.944444444444444 and F-measure = 0.85
+\item
+  For threshold = 0.5 , Precision = 0.846153846153846 , Recall = 0.916666666666667 and F-measure = 0.88
+\item
+  For threshold = 0.6 , Precision = 0.833333333333333 , Recall = 0.833333333333333 and F-measure = 0.833333333333333
+\item
+  For threshold = 0.9 , Precision = 0.961538461538462 , Recall = 0.694444444444444 and F-measure = 0.806451612903226
+\end{itemize}
+
+We can see the that recall (\emph{i.e.} precision) is decreasing with the increasing threshold. It means that with a low threshold and high values of recall, most of the mpg = 1 will be correctly classified into class 1. For instance, for threshold = 0.1, recall = 1, which means that all the actual mpg = 1 are classified as one.
+On the other hand, we can see that the the precision has the opposite behavior: it increases with the increasing threshold. A higher precision means that the predicted class = 1 will contain mostly actual values of mpg = 1 and will contain less misclassification.
+We can see that the F-score, which takes into account both precision and recall, is the highest for threshold = 0.5. Thus, it seems that we should prefer this threshold of 0.5 over the others because it optimizes the recall and precision metrics.
+
+\newpage
+
+\hypertarget{section-7}{%
+\section{}\label{section-7}}
+
+\textbf{Perform decision tree algorithm on train to predict mpg01 using all the features except name.}
+
+\hypertarget{create-a-plot-of-the-tree.-compute-the-training-error-rate.-compute-the-test-error-rate.}{%
+\subsection{Create a plot of the tree. Compute the training error rate. Compute the test error rate.}\label{create-a-plot-of-the-tree.-compute-the-training-error-rate.-compute-the-test-error-rate.}}
 
 
 \singlespacing % reset the spacing of the bibliography style
