@@ -168,6 +168,8 @@
 %{\thechapter{. }}
 \titlespacing*{\chapter}{0pt}{-50pt}{10pt}
 % -50 is to up the title and 10 is the space with the text below
+
+
 \usepackage{booktabs}
 \usepackage{longtable}
 \usepackage{array}
@@ -241,10 +243,10 @@ the model.}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{# Perform the multiple linear regression}
-\NormalTok{lm <-}\StringTok{ }
-\StringTok{  }\KeywordTok{lm}\NormalTok{(mpg }\OperatorTok{~}\StringTok{ }\NormalTok{., }\DataTypeTok{data =} \KeywordTok{subset}\NormalTok{(Auto, }\DataTypeTok{select =} \OperatorTok{-}\NormalTok{name))}
-\CommentTok{# Print the output}
+\CommentTok{\# Perform the multiple linear regression}
+\NormalTok{lm \textless{}{-}}\StringTok{ }
+\StringTok{  }\KeywordTok{lm}\NormalTok{(mpg }\OperatorTok{\textasciitilde{}}\StringTok{ }\NormalTok{., }\DataTypeTok{data =} \KeywordTok{subset}\NormalTok{(Auto, }\DataTypeTok{select =} \OperatorTok{{-}}\NormalTok{name))}
+\CommentTok{\# Print the output}
 \KeywordTok{summary}\NormalTok{(lm)}
 \end{Highlighting}
 \end{Shaded}
@@ -297,37 +299,37 @@ for the polynomial degrees 1 to 5 and report the values of Adjusted R2.}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{## Perform the 5 polynomial linear regression}
+\CommentTok{\#\# Perform the 5 polynomial linear regression}
 \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\DecValTok{5}\NormalTok{)\{}
   \KeywordTok{assign}\NormalTok{(}\KeywordTok{paste0}\NormalTok{(}\StringTok{"fit"}\NormalTok{, i),}
-         \KeywordTok{lm}\NormalTok{(mpg }\OperatorTok{~}\StringTok{ }\KeywordTok{poly}\NormalTok{(acceleration, i), }\DataTypeTok{data =} \KeywordTok{subset}\NormalTok{(Auto, }\DataTypeTok{select =} \OperatorTok{-}\NormalTok{name)))}
+         \KeywordTok{lm}\NormalTok{(mpg }\OperatorTok{\textasciitilde{}}\StringTok{ }\KeywordTok{poly}\NormalTok{(acceleration, i), }\DataTypeTok{data =} \KeywordTok{subset}\NormalTok{(Auto, }\DataTypeTok{select =} \OperatorTok{{-}}\NormalTok{name)))}
 \NormalTok{\}}
-\CommentTok{## Plot them on a single plot}
-\CommentTok{#### First merge the predicted values of mpg with the acceleration}
-\NormalTok{Auto }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\KeywordTok{select}\NormalTok{(acceleration) }\OperatorTok{%>%}\StringTok{ }
+\CommentTok{\#\# Plot them on a single plot}
+\CommentTok{\#\#\#\# First merge the predicted values of mpg with the acceleration}
+\NormalTok{Auto }\OperatorTok{\%\textgreater{}\%}\StringTok{ }
+\StringTok{  }\KeywordTok{select}\NormalTok{(acceleration) }\OperatorTok{\%\textgreater{}\%}\StringTok{ }
 \StringTok{  }\KeywordTok{cbind}\NormalTok{(}\DataTypeTok{poly1 =}\NormalTok{ fit1}\OperatorTok{$}\NormalTok{fitted.values,}
         \DataTypeTok{poly2 =}\NormalTok{ fit2}\OperatorTok{$}\NormalTok{fitted.values,}
         \DataTypeTok{poly3 =}\NormalTok{ fit3}\OperatorTok{$}\NormalTok{fitted.values,}
         \DataTypeTok{poly4 =}\NormalTok{ fit4}\OperatorTok{$}\NormalTok{fitted.values,}
-        \DataTypeTok{poly5 =}\NormalTok{ fit5}\OperatorTok{$}\NormalTok{fitted.values) }\OperatorTok{%>%}
-\CommentTok{##### Then format the data for ggplot  }
-\StringTok{  }\KeywordTok{pivot_longer}\NormalTok{(}\DataTypeTok{cols =}\NormalTok{ poly1}\OperatorTok{:}\NormalTok{poly5,}
-               \DataTypeTok{names_to =} \StringTok{"poly"}\NormalTok{,}
-               \DataTypeTok{values_to =} \StringTok{"mpg"}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{rsq =} \KeywordTok{case_when}\NormalTok{(}
-\NormalTok{    poly }\OperatorTok{==}\StringTok{ "poly1"} \OperatorTok{~}\StringTok{ }\KeywordTok{round}\NormalTok{(}\KeywordTok{summary}\NormalTok{(fit1)}\OperatorTok{$}\NormalTok{adj.r.squared, }\DataTypeTok{digits =} \DecValTok{2}\NormalTok{),}
-\NormalTok{    poly }\OperatorTok{==}\StringTok{ "poly2"} \OperatorTok{~}\StringTok{ }\KeywordTok{round}\NormalTok{(}\KeywordTok{summary}\NormalTok{(fit2)}\OperatorTok{$}\NormalTok{adj.r.squared, }\DataTypeTok{digits =} \DecValTok{2}\NormalTok{),}
-\NormalTok{    poly }\OperatorTok{==}\StringTok{ "poly3"} \OperatorTok{~}\StringTok{ }\KeywordTok{round}\NormalTok{(}\KeywordTok{summary}\NormalTok{(fit3)}\OperatorTok{$}\NormalTok{adj.r.squared, }\DataTypeTok{digits =} \DecValTok{2}\NormalTok{),}
-\NormalTok{    poly }\OperatorTok{==}\StringTok{ "poly4"} \OperatorTok{~}\StringTok{ }\KeywordTok{round}\NormalTok{(}\KeywordTok{summary}\NormalTok{(fit4)}\OperatorTok{$}\NormalTok{adj.r.squared, }\DataTypeTok{digits =} \DecValTok{2}\NormalTok{),}
-\NormalTok{    poly }\OperatorTok{==}\StringTok{ "poly5"} \OperatorTok{~}\StringTok{ }\KeywordTok{round}\NormalTok{(}\KeywordTok{summary}\NormalTok{(fit5)}\OperatorTok{$}\NormalTok{adj.r.squared, }\DataTypeTok{digits =} \DecValTok{2}\NormalTok{)}
-\NormalTok{  )) }\OperatorTok{%>%}\StringTok{ }
-\StringTok{  }\KeywordTok{unite}\NormalTok{(poly, }\KeywordTok{c}\NormalTok{(}\StringTok{"poly"}\NormalTok{, }\StringTok{"rsq"}\NormalTok{), }\DataTypeTok{sep =} \StringTok{", adj.R² = "}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
-\CommentTok{#### Now plot it}
+        \DataTypeTok{poly5 =}\NormalTok{ fit5}\OperatorTok{$}\NormalTok{fitted.values) }\OperatorTok{\%\textgreater{}\%}
+\CommentTok{\#\#\#\#\# Then format the data for ggplot  }
+\StringTok{  }\KeywordTok{pivot\_longer}\NormalTok{(}\DataTypeTok{cols =}\NormalTok{ poly1}\OperatorTok{:}\NormalTok{poly5,}
+               \DataTypeTok{names\_to =} \StringTok{"poly"}\NormalTok{,}
+               \DataTypeTok{values\_to =} \StringTok{"mpg"}\NormalTok{) }\OperatorTok{\%\textgreater{}\%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{rsq =} \KeywordTok{case\_when}\NormalTok{(}
+\NormalTok{    poly }\OperatorTok{==}\StringTok{ "poly1"} \OperatorTok{\textasciitilde{}}\StringTok{ }\KeywordTok{round}\NormalTok{(}\KeywordTok{summary}\NormalTok{(fit1)}\OperatorTok{$}\NormalTok{adj.r.squared, }\DataTypeTok{digits =} \DecValTok{2}\NormalTok{),}
+\NormalTok{    poly }\OperatorTok{==}\StringTok{ "poly2"} \OperatorTok{\textasciitilde{}}\StringTok{ }\KeywordTok{round}\NormalTok{(}\KeywordTok{summary}\NormalTok{(fit2)}\OperatorTok{$}\NormalTok{adj.r.squared, }\DataTypeTok{digits =} \DecValTok{2}\NormalTok{),}
+\NormalTok{    poly }\OperatorTok{==}\StringTok{ "poly3"} \OperatorTok{\textasciitilde{}}\StringTok{ }\KeywordTok{round}\NormalTok{(}\KeywordTok{summary}\NormalTok{(fit3)}\OperatorTok{$}\NormalTok{adj.r.squared, }\DataTypeTok{digits =} \DecValTok{2}\NormalTok{),}
+\NormalTok{    poly }\OperatorTok{==}\StringTok{ "poly4"} \OperatorTok{\textasciitilde{}}\StringTok{ }\KeywordTok{round}\NormalTok{(}\KeywordTok{summary}\NormalTok{(fit4)}\OperatorTok{$}\NormalTok{adj.r.squared, }\DataTypeTok{digits =} \DecValTok{2}\NormalTok{),}
+\NormalTok{    poly }\OperatorTok{==}\StringTok{ "poly5"} \OperatorTok{\textasciitilde{}}\StringTok{ }\KeywordTok{round}\NormalTok{(}\KeywordTok{summary}\NormalTok{(fit5)}\OperatorTok{$}\NormalTok{adj.r.squared, }\DataTypeTok{digits =} \DecValTok{2}\NormalTok{)}
+\NormalTok{  )) }\OperatorTok{\%\textgreater{}\%}\StringTok{ }
+\StringTok{  }\KeywordTok{unite}\NormalTok{(poly, }\KeywordTok{c}\NormalTok{(}\StringTok{"poly"}\NormalTok{, }\StringTok{"rsq"}\NormalTok{), }\DataTypeTok{sep =} \StringTok{", adj.R² = "}\NormalTok{) }\OperatorTok{\%\textgreater{}\%}\StringTok{ }
+\CommentTok{\#\#\#\# Now plot it}
 \StringTok{  }\KeywordTok{ggplot}\NormalTok{()}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_point}\NormalTok{(}\KeywordTok{aes}\NormalTok{(acceleration, mpg), }\DataTypeTok{data =} \KeywordTok{subset}\NormalTok{(Auto, }\DataTypeTok{select =} \OperatorTok{-}\NormalTok{name))}\OperatorTok{+}
-\StringTok{  }\KeywordTok{geom_line}\NormalTok{(}\KeywordTok{aes}\NormalTok{(acceleration, mpg, }\DataTypeTok{color =}\NormalTok{ poly), }\DataTypeTok{size =} \FloatTok{1.2}\NormalTok{)}\OperatorTok{+}
-\StringTok{  }\KeywordTok{theme_classic}\NormalTok{()}
+\StringTok{  }\KeywordTok{geom\_point}\NormalTok{(}\KeywordTok{aes}\NormalTok{(acceleration, mpg), }\DataTypeTok{data =} \KeywordTok{subset}\NormalTok{(Auto, }\DataTypeTok{select =} \OperatorTok{{-}}\NormalTok{name))}\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom\_line}\NormalTok{(}\KeywordTok{aes}\NormalTok{(acceleration, mpg, }\DataTypeTok{color =}\NormalTok{ poly), }\DataTypeTok{size =} \FloatTok{1.2}\NormalTok{)}\OperatorTok{+}
+\StringTok{  }\KeywordTok{theme\_classic}\NormalTok{()}
 \end{Highlighting}
 \end{Shaded}
 
@@ -346,15 +348,15 @@ and a 0 if mpg contains a value below its median. Create a single data set conta
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{# Discretizing mpg}
-\NormalTok{Auto}\OperatorTok{$}\NormalTok{mpg01 <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(Auto}\OperatorTok{$}\NormalTok{mpg }\OperatorTok{>}\StringTok{ }\KeywordTok{median}\NormalTok{(Auto}\OperatorTok{$}\NormalTok{mpg), }\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{)}
-\CommentTok{# Creating dataset with discrete mpg}
-\NormalTok{classif_data <-}\KeywordTok{subset}\NormalTok{(Auto, }\DataTypeTok{select =} \OperatorTok{-}\NormalTok{mpg)}
-\CommentTok{## Compute entropy}
-\CommentTok{# First compute the proba of each class}
-\NormalTok{p <-}\StringTok{ }\KeywordTok{table}\NormalTok{(classif_data}\OperatorTok{$}\NormalTok{mpg01) }\OperatorTok{/}\StringTok{ }\KeywordTok{length}\NormalTok{(classif_data}\OperatorTok{$}\NormalTok{mpg01)}
-\CommentTok{## Then compute the entropy}
-\NormalTok{ent_mpg <-}\StringTok{ }\OperatorTok{-}\KeywordTok{sum}\NormalTok{(p }\OperatorTok{*}\StringTok{ }\KeywordTok{log2}\NormalTok{(p))}
+\CommentTok{\# Discretizing mpg}
+\NormalTok{Auto}\OperatorTok{$}\NormalTok{mpg01 \textless{}{-}}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(Auto}\OperatorTok{$}\NormalTok{mpg }\OperatorTok{\textgreater{}}\StringTok{ }\KeywordTok{median}\NormalTok{(Auto}\OperatorTok{$}\NormalTok{mpg), }\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{)}
+\CommentTok{\# Creating dataset with discrete mpg}
+\NormalTok{classif\_data \textless{}{-}}\KeywordTok{subset}\NormalTok{(Auto, }\DataTypeTok{select =} \OperatorTok{{-}}\NormalTok{mpg)}
+\CommentTok{\#\# Compute entropy}
+\CommentTok{\# First compute the proba of each class}
+\NormalTok{p \textless{}{-}}\StringTok{ }\KeywordTok{table}\NormalTok{(classif\_data}\OperatorTok{$}\NormalTok{mpg01) }\OperatorTok{/}\StringTok{ }\KeywordTok{length}\NormalTok{(classif\_data}\OperatorTok{$}\NormalTok{mpg01)}
+\CommentTok{\#\# Then compute the entropy}
+\NormalTok{ent\_mpg \textless{}{-}}\StringTok{ }\OperatorTok{{-}}\KeywordTok{sum}\NormalTok{(p }\OperatorTok{*}\StringTok{ }\KeywordTok{log2}\NormalTok{(p))}
 \end{Highlighting}
 \end{Shaded}
 
@@ -367,11 +369,11 @@ Here, the entropy of \(mpg01 =\) 1 which is totally expected because \texttt{mpg
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\KeywordTok{set.seed}\NormalTok{(}\DecValTok{123}\NormalTok{) }\CommentTok{# to reproduce the results}
-\CommentTok{## Training dataset}
-\NormalTok{train <-}\StringTok{ }\NormalTok{classif_data[}\KeywordTok{sample}\NormalTok{(}\KeywordTok{nrow}\NormalTok{(classif_data), }\KeywordTok{nrow}\NormalTok{(classif_data)}\OperatorTok{*}\FloatTok{0.8}\NormalTok{),]}
-\CommentTok{## Test dataset}
-\NormalTok{test <-}\StringTok{ }\NormalTok{classif_data[}\KeywordTok{sample}\NormalTok{(}\KeywordTok{nrow}\NormalTok{(classif_data), }\KeywordTok{nrow}\NormalTok{(classif_data)}\OperatorTok{*}\FloatTok{0.2}\NormalTok{),]}
+\KeywordTok{set.seed}\NormalTok{(}\DecValTok{123}\NormalTok{) }\CommentTok{\# to reproduce the results}
+\CommentTok{\#\# Training dataset}
+\NormalTok{train \textless{}{-}}\StringTok{ }\NormalTok{classif\_data[}\KeywordTok{sample}\NormalTok{(}\KeywordTok{nrow}\NormalTok{(classif\_data), }\KeywordTok{nrow}\NormalTok{(classif\_data)}\OperatorTok{*}\FloatTok{0.8}\NormalTok{),]}
+\CommentTok{\#\# Test dataset}
+\NormalTok{test \textless{}{-}}\StringTok{ }\NormalTok{classif\_data[}\KeywordTok{sample}\NormalTok{(}\KeywordTok{nrow}\NormalTok{(classif\_data), }\KeywordTok{nrow}\NormalTok{(classif\_data)}\OperatorTok{*}\FloatTok{0.2}\NormalTok{),]}
 \end{Highlighting}
 \end{Shaded}
 
@@ -382,7 +384,7 @@ Here, the entropy of \(mpg01 =\) 1 which is totally expected because \texttt{mpg
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{# Most frequent class of the training data}
+\CommentTok{\# Most frequent class of the training data}
 \KeywordTok{table}\NormalTok{(train}\OperatorTok{$}\NormalTok{mpg01)}
 \end{Highlighting}
 \end{Shaded}
@@ -397,7 +399,7 @@ The most frequent class of the training dataset is \(1\). Thus, the trivial clas
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{## Confusion matrix of the trivial classifier}
+\CommentTok{\#\# Confusion matrix of the trivial classifier}
 \KeywordTok{table}\NormalTok{(test}\OperatorTok{$}\NormalTok{mpg01, }\KeywordTok{rep}\NormalTok{(}\DecValTok{1}\NormalTok{, }\KeywordTok{nrow}\NormalTok{(test)))}
 \end{Highlighting}
 \end{Shaded}
@@ -411,8 +413,8 @@ The most frequent class of the training dataset is \(1\). Thus, the trivial clas
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{## Compute accuracy}
-\NormalTok{accuracy <-}\StringTok{ }\DecValTok{36}\OperatorTok{/}\KeywordTok{nrow}\NormalTok{(test)}
+\CommentTok{\#\# Compute accuracy}
+\NormalTok{accuracy \textless{}{-}}\StringTok{ }\DecValTok{36}\OperatorTok{/}\KeywordTok{nrow}\NormalTok{(test)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -430,17 +432,17 @@ Here, the accuracy = 0.4615385, which means that only \(46\%\) of the target val
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{## Learn the model}
-\NormalTok{logit_reg <-}\StringTok{ }\KeywordTok{glm}\NormalTok{(mpg01 }\OperatorTok{~}\StringTok{ }\NormalTok{., }\DataTypeTok{family =} \KeywordTok{binomial}\NormalTok{(}\DataTypeTok{link =} \StringTok{"logit"}\NormalTok{),}
-                 \DataTypeTok{data =} \KeywordTok{subset}\NormalTok{(train, }\DataTypeTok{select =} \OperatorTok{-}\NormalTok{name))}
-\CommentTok{## Use the model to predict on the learning dataset}
-\NormalTok{train_prediction <-}\StringTok{ }\KeywordTok{predict}\NormalTok{(logit_reg, }\DataTypeTok{type =} \StringTok{"response"}\NormalTok{)}
-\CommentTok{## Transform the prediction into 0/1}
-\NormalTok{train_prediction <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(train_prediction }\OperatorTok{>}\StringTok{ }\FloatTok{.5}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{)}
-\CommentTok{## Confusion matrix}
-\NormalTok{cm_train_logit <-}\StringTok{ }\KeywordTok{table}\NormalTok{(train}\OperatorTok{$}\NormalTok{mpg01, train_prediction)}
-\CommentTok{## Training error rate}
-\NormalTok{train_error_rate <-}\StringTok{ }\DecValTok{1} \OperatorTok{-}\StringTok{ }\KeywordTok{sum}\NormalTok{(}\KeywordTok{diag}\NormalTok{(cm_train_logit))}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(cm_train_logit)}
+\CommentTok{\#\# Learn the model}
+\NormalTok{logit\_reg \textless{}{-}}\StringTok{ }\KeywordTok{glm}\NormalTok{(mpg01 }\OperatorTok{\textasciitilde{}}\StringTok{ }\NormalTok{., }\DataTypeTok{family =} \KeywordTok{binomial}\NormalTok{(}\DataTypeTok{link =} \StringTok{"logit"}\NormalTok{),}
+                 \DataTypeTok{data =} \KeywordTok{subset}\NormalTok{(train, }\DataTypeTok{select =} \OperatorTok{{-}}\NormalTok{name))}
+\CommentTok{\#\# Use the model to predict on the learning dataset}
+\NormalTok{train\_prediction \textless{}{-}}\StringTok{ }\KeywordTok{predict}\NormalTok{(logit\_reg, }\DataTypeTok{type =} \StringTok{"response"}\NormalTok{)}
+\CommentTok{\#\# Transform the prediction into 0/1}
+\NormalTok{train\_prediction \textless{}{-}}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(train\_prediction }\OperatorTok{\textgreater{}}\StringTok{ }\FloatTok{.5}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{)}
+\CommentTok{\#\# Confusion matrix}
+\NormalTok{cm\_train\_logit \textless{}{-}}\StringTok{ }\KeywordTok{table}\NormalTok{(train}\OperatorTok{$}\NormalTok{mpg01, train\_prediction)}
+\CommentTok{\#\# Training error rate}
+\NormalTok{train\_error\_rate \textless{}{-}}\StringTok{ }\DecValTok{1} \OperatorTok{{-}}\StringTok{ }\KeywordTok{sum}\NormalTok{(}\KeywordTok{diag}\NormalTok{(cm\_train\_logit))}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(cm\_train\_logit)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -453,18 +455,18 @@ The training error rate of this logistic regression is 0.0830671.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{## Use the model to predict on the test dataset}
-\NormalTok{test_prediction <-}\StringTok{ }\KeywordTok{predict}\NormalTok{(logit_reg, }\DataTypeTok{type =} \StringTok{"response"}\NormalTok{, }\DataTypeTok{newdata =}\NormalTok{ test)}
-\CommentTok{## Transform the prediction into 0/1}
-\NormalTok{test_prediction <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(test_prediction }\OperatorTok{>}\StringTok{ }\FloatTok{.5}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{)}
-\CommentTok{## Confusion matrix}
-\NormalTok{cm_test_logit <-}\StringTok{ }\KeywordTok{table}\NormalTok{(test}\OperatorTok{$}\NormalTok{mpg01, test_prediction)}
-\CommentTok{## Test error rate:}
-\NormalTok{test_error_rate <-}\StringTok{ }\DecValTok{1} \OperatorTok{-}\StringTok{ }\KeywordTok{sum}\NormalTok{(}\KeywordTok{diag}\NormalTok{(cm_test_logit))}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(cm_test_logit)}
-\CommentTok{## Sensitivity}
-\NormalTok{sensi <-}\StringTok{ }\NormalTok{cm_test_logit[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{]}\OperatorTok{/}\NormalTok{(cm_test_logit[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{] }\OperatorTok{+}\StringTok{ }\NormalTok{cm_test_logit[}\DecValTok{2}\NormalTok{,}\DecValTok{1}\NormalTok{])}
-\CommentTok{## Specificity}
-\NormalTok{speci <-}\StringTok{ }\NormalTok{cm_test_logit[}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{]}\OperatorTok{/}\NormalTok{(cm_test_logit[}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{]}\OperatorTok{+}\NormalTok{cm_test_logit[}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{])}
+\CommentTok{\#\# Use the model to predict on the test dataset}
+\NormalTok{test\_prediction \textless{}{-}}\StringTok{ }\KeywordTok{predict}\NormalTok{(logit\_reg, }\DataTypeTok{type =} \StringTok{"response"}\NormalTok{, }\DataTypeTok{newdata =}\NormalTok{ test)}
+\CommentTok{\#\# Transform the prediction into 0/1}
+\NormalTok{test\_prediction \textless{}{-}}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(test\_prediction }\OperatorTok{\textgreater{}}\StringTok{ }\FloatTok{.5}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{)}
+\CommentTok{\#\# Confusion matrix}
+\NormalTok{cm\_test\_logit \textless{}{-}}\StringTok{ }\KeywordTok{table}\NormalTok{(test}\OperatorTok{$}\NormalTok{mpg01, test\_prediction)}
+\CommentTok{\#\# Test error rate:}
+\NormalTok{test\_error\_rate \textless{}{-}}\StringTok{ }\DecValTok{1} \OperatorTok{{-}}\StringTok{ }\KeywordTok{sum}\NormalTok{(}\KeywordTok{diag}\NormalTok{(cm\_test\_logit))}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(cm\_test\_logit)}
+\CommentTok{\#\# Sensitivity}
+\NormalTok{sensi \textless{}{-}}\StringTok{ }\NormalTok{cm\_test\_logit[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{]}\OperatorTok{/}\NormalTok{(cm\_test\_logit[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{] }\OperatorTok{+}\StringTok{ }\NormalTok{cm\_test\_logit[}\DecValTok{2}\NormalTok{,}\DecValTok{1}\NormalTok{])}
+\CommentTok{\#\# Specificity}
+\NormalTok{speci \textless{}{-}}\StringTok{ }\NormalTok{cm\_test\_logit[}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{]}\OperatorTok{/}\NormalTok{(cm\_test\_logit[}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{]}\OperatorTok{+}\NormalTok{cm\_test\_logit[}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{])}
 \end{Highlighting}
 \end{Shaded}
 
@@ -486,25 +488,25 @@ On the other hand, the \textbf{specificity} equal to 0.8571429 means that only 8
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{thresholds <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\FloatTok{0.1}\NormalTok{, }\FloatTok{0.3}\NormalTok{, }\FloatTok{0.5}\NormalTok{, }\FloatTok{0.6}\NormalTok{, }\FloatTok{0.9}\NormalTok{)}
+\NormalTok{thresholds \textless{}{-}}\StringTok{ }\KeywordTok{c}\NormalTok{(}\FloatTok{0.1}\NormalTok{, }\FloatTok{0.3}\NormalTok{, }\FloatTok{0.5}\NormalTok{, }\FloatTok{0.6}\NormalTok{, }\FloatTok{0.9}\NormalTok{)}
 \ControlFlowTok{for}\NormalTok{(i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\KeywordTok{length}\NormalTok{(thresholds))\{}
-  \CommentTok{## Use the model to predict on the test dataset}
-\NormalTok{  test_prediction <-}\StringTok{ }\KeywordTok{predict}\NormalTok{(logit_reg, }\DataTypeTok{type =} \StringTok{"response"}\NormalTok{, }\DataTypeTok{newdata =}\NormalTok{ test)}
-  \CommentTok{## Transform the prediction into 0/1}
-\NormalTok{  test_prediction <-}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(test_prediction }\OperatorTok{>}\StringTok{ }\NormalTok{thresholds[i], }\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{)}
-  \CommentTok{## Confusion matrix}
-\NormalTok{  cm_test_logit <-}\StringTok{ }\KeywordTok{table}\NormalTok{(test}\OperatorTok{$}\NormalTok{mpg01, test_prediction)}
-  \CommentTok{## Precision}
-\NormalTok{  prec <-}\StringTok{ }\NormalTok{cm_test_logit[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{]}\OperatorTok{/}\NormalTok{(cm_test_logit[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{] }\OperatorTok{+}\StringTok{ }\NormalTok{cm_test_logit[}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{])}
-  \CommentTok{## Recall}
-\NormalTok{  recall <-}\StringTok{ }\NormalTok{cm_test_logit[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{]}\OperatorTok{/}\NormalTok{(cm_test_logit[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{] }\OperatorTok{+}\StringTok{ }\NormalTok{cm_test_logit[}\DecValTok{2}\NormalTok{,}\DecValTok{1}\NormalTok{])}
-  \CommentTok{## F-measure}
-\NormalTok{  fmeasure <-}\StringTok{ }\DecValTok{2}\OperatorTok{*}\NormalTok{(prec}\OperatorTok{*}\NormalTok{recall)}\OperatorTok{/}\NormalTok{(prec}\OperatorTok{+}\NormalTok{recall)}
-  \CommentTok{#Print}
-  \KeywordTok{cat}\NormalTok{(}\KeywordTok{paste0}\NormalTok{(}\StringTok{"-"}\NormalTok{,}\StringTok{" For threshold = "}\NormalTok{, thresholds[i],}
+  \CommentTok{\#\# Use the model to predict on the test dataset}
+\NormalTok{  test\_prediction \textless{}{-}}\StringTok{ }\KeywordTok{predict}\NormalTok{(logit\_reg, }\DataTypeTok{type =} \StringTok{"response"}\NormalTok{, }\DataTypeTok{newdata =}\NormalTok{ test)}
+  \CommentTok{\#\# Transform the prediction into 0/1}
+\NormalTok{  test\_prediction \textless{}{-}}\StringTok{ }\KeywordTok{ifelse}\NormalTok{(test\_prediction }\OperatorTok{\textgreater{}}\StringTok{ }\NormalTok{thresholds[i], }\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{)}
+  \CommentTok{\#\# Confusion matrix}
+\NormalTok{  cm\_test\_logit \textless{}{-}}\StringTok{ }\KeywordTok{table}\NormalTok{(test}\OperatorTok{$}\NormalTok{mpg01, test\_prediction)}
+  \CommentTok{\#\# Precision}
+\NormalTok{  prec \textless{}{-}}\StringTok{ }\NormalTok{cm\_test\_logit[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{]}\OperatorTok{/}\NormalTok{(cm\_test\_logit[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{] }\OperatorTok{+}\StringTok{ }\NormalTok{cm\_test\_logit[}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{])}
+  \CommentTok{\#\# Recall}
+\NormalTok{  recall \textless{}{-}}\StringTok{ }\NormalTok{cm\_test\_logit[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{]}\OperatorTok{/}\NormalTok{(cm\_test\_logit[}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{] }\OperatorTok{+}\StringTok{ }\NormalTok{cm\_test\_logit[}\DecValTok{2}\NormalTok{,}\DecValTok{1}\NormalTok{])}
+  \CommentTok{\#\# F{-}measure}
+\NormalTok{  fmeasure \textless{}{-}}\StringTok{ }\DecValTok{2}\OperatorTok{*}\NormalTok{(prec}\OperatorTok{*}\NormalTok{recall)}\OperatorTok{/}\NormalTok{(prec}\OperatorTok{+}\NormalTok{recall)}
+  \CommentTok{\#Print}
+  \KeywordTok{cat}\NormalTok{(}\KeywordTok{paste0}\NormalTok{(}\StringTok{"{-}"}\NormalTok{,}\StringTok{" For threshold = "}\NormalTok{, thresholds[i],}
                \StringTok{" , Precision = "}\NormalTok{, prec,}
                \StringTok{" , Recall = "}\NormalTok{, recall,}
-               \StringTok{" and F-measure = "}\NormalTok{, fmeasure), }\DataTypeTok{sep =} \StringTok{"}\CharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+               \StringTok{" and F{-}measure = "}\NormalTok{, fmeasure), }\DataTypeTok{sep =} \StringTok{"}\CharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
 \NormalTok{\}}
 \end{Highlighting}
 \end{Shaded}
@@ -541,9 +543,9 @@ We can see that the F-score, which takes into account both precision and recall,
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{## Learn the decision tree}
-\NormalTok{dt <-}\StringTok{ }\KeywordTok{rpart}\NormalTok{(}\KeywordTok{as.factor}\NormalTok{(mpg01) }\OperatorTok{~}\StringTok{ }\NormalTok{., }\DataTypeTok{data =} \KeywordTok{subset}\NormalTok{(train, }\DataTypeTok{select =} \OperatorTok{-}\NormalTok{name))}
-\CommentTok{## Plot it}
+\CommentTok{\#\# Learn the decision tree}
+\NormalTok{dt \textless{}{-}}\StringTok{ }\KeywordTok{rpart}\NormalTok{(}\KeywordTok{as.factor}\NormalTok{(mpg01) }\OperatorTok{\textasciitilde{}}\StringTok{ }\NormalTok{., }\DataTypeTok{data =} \KeywordTok{subset}\NormalTok{(train, }\DataTypeTok{select =} \OperatorTok{{-}}\NormalTok{name))}
+\CommentTok{\#\# Plot it}
 \KeywordTok{rpart.plot}\NormalTok{(dt)}
 \end{Highlighting}
 \end{Shaded}
@@ -552,14 +554,14 @@ We can see that the F-score, which takes into account both precision and recall,
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{## Training data}
-\NormalTok{predtrain <-}\StringTok{ }\KeywordTok{predict}\NormalTok{(dt, }\DataTypeTok{type =} \StringTok{"class"}\NormalTok{)}
-\NormalTok{cmtrain <-}\StringTok{ }\KeywordTok{table}\NormalTok{(train}\OperatorTok{$}\NormalTok{mpg01, predtrain)}
-\NormalTok{trainerrorrate <-}\StringTok{ }\DecValTok{1} \OperatorTok{-}\StringTok{ }\NormalTok{(}\KeywordTok{sum}\NormalTok{(}\KeywordTok{diag}\NormalTok{(cmtrain))}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(cmtrain))}
-\CommentTok{## Test data}
-\NormalTok{predtest <-}\StringTok{ }\KeywordTok{predict}\NormalTok{(dt, }\DataTypeTok{type =} \StringTok{"class"}\NormalTok{, }\DataTypeTok{newdata =}\NormalTok{ test)}
-\NormalTok{cmtest <-}\StringTok{ }\KeywordTok{table}\NormalTok{(test}\OperatorTok{$}\NormalTok{mpg01, predtest)}
-\NormalTok{testerrorrate <-}\StringTok{ }\DecValTok{1} \OperatorTok{-}\StringTok{ }\NormalTok{(}\KeywordTok{sum}\NormalTok{(}\KeywordTok{diag}\NormalTok{(cmtest))}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(cmtest))}
+\CommentTok{\#\# Training data}
+\NormalTok{predtrain \textless{}{-}}\StringTok{ }\KeywordTok{predict}\NormalTok{(dt, }\DataTypeTok{type =} \StringTok{"class"}\NormalTok{)}
+\NormalTok{cmtrain \textless{}{-}}\StringTok{ }\KeywordTok{table}\NormalTok{(train}\OperatorTok{$}\NormalTok{mpg01, predtrain)}
+\NormalTok{trainerrorrate \textless{}{-}}\StringTok{ }\DecValTok{1} \OperatorTok{{-}}\StringTok{ }\NormalTok{(}\KeywordTok{sum}\NormalTok{(}\KeywordTok{diag}\NormalTok{(cmtrain))}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(cmtrain))}
+\CommentTok{\#\# Test data}
+\NormalTok{predtest \textless{}{-}}\StringTok{ }\KeywordTok{predict}\NormalTok{(dt, }\DataTypeTok{type =} \StringTok{"class"}\NormalTok{, }\DataTypeTok{newdata =}\NormalTok{ test)}
+\NormalTok{cmtest \textless{}{-}}\StringTok{ }\KeywordTok{table}\NormalTok{(test}\OperatorTok{$}\NormalTok{mpg01, predtest)}
+\NormalTok{testerrorrate \textless{}{-}}\StringTok{ }\DecValTok{1} \OperatorTok{{-}}\StringTok{ }\NormalTok{(}\KeywordTok{sum}\NormalTok{(}\KeywordTok{diag}\NormalTok{(cmtest))}\OperatorTok{/}\KeywordTok{sum}\NormalTok{(cmtest))}
 \end{Highlighting}
 \end{Shaded}
 
@@ -570,7 +572,7 @@ The training error rate = 0.0447284 and the test error rate = 0.1025641.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{tunedDT <-}\StringTok{ }\KeywordTok{rpart}\NormalTok{(}\KeywordTok{as.factor}\NormalTok{(mpg01) }\OperatorTok{~}\StringTok{ }\NormalTok{., }\DataTypeTok{data =} \KeywordTok{subset}\NormalTok{(train, }\DataTypeTok{select =} \OperatorTok{-}\NormalTok{name), }
+\NormalTok{tunedDT \textless{}{-}}\StringTok{ }\KeywordTok{rpart}\NormalTok{(}\KeywordTok{as.factor}\NormalTok{(mpg01) }\OperatorTok{\textasciitilde{}}\StringTok{ }\NormalTok{., }\DataTypeTok{data =} \KeywordTok{subset}\NormalTok{(train, }\DataTypeTok{select =} \OperatorTok{{-}}\NormalTok{name), }
                  \DataTypeTok{cp =} \FloatTok{0.004}\NormalTok{)}
 \KeywordTok{plotcp}\NormalTok{(tunedDT)}
 \end{Highlighting}
